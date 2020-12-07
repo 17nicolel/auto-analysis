@@ -1,0 +1,87 @@
+# YunXuan Liao
+# ITP 449 Fall 2020
+# Final Project
+# Q4
+
+import numpy as np
+import pandas as pd
+import os
+import matplotlib.pyplot as plt
+import seaborn as sb
+
+auto=pd.read_csv('auto-mpg.csv')
+print(auto.columns)
+
+#A. Summarize the data set. What is the mean of mpg?
+print(auto['mpg'].mean())
+
+#B. What is the median value of mpg?
+print(auto['mpg'].median())
+
+#C. Which value is higher – mean or median? What does this indicate in terms of the skewness of the attribute values?
+# Make a plot to verify your answer. Hint: Look
+plt.figure(1)
+auto['mpg'].plot(kind = 'density')
+#the mean is higher, from the graph it shows that it is right-skewed
+
+#D. Plot the pairplot matrix of all the relevant numeric attributes. (don’t consider No)?
+auto2=auto.drop(['No'], axis = 1)
+sb.pairplot(auto2)
+plt.show()
+
+#E. Based on the pairplot matrix, which two attributes seem to be most strongly linearly correlated?
+pd.set_option('display.max_columns', None)
+corrMatrix=auto2.corr()
+print(corrMatrix)
+#based on the graph it's hoursepower and weight. Based on correlation matrix it's displacement and cylinders.
+
+#F. Based on the pairplot matrix, which two attributes seem to be most weakly correlated.
+#model_year and acceleration.
+
+#G. Produce a scatterplot of the two attributes mpg and displacement with displacement on the x axis and mpg on the y axis.
+plt.figure(3)
+plt.scatter(auto2['displacement'],auto2['mpg'])
+plt.xlabel('displacement')
+plt.ylabel('mpg')
+plt.show()
+
+#H. Build a linear regression model with mpg as the target and displacement as the predictor. Answer the following questions based on the regression model.
+from sklearn.linear_model import LinearRegression
+
+model=LinearRegression()
+x=auto2['displacement']
+X=x[:,np.newaxis]
+y=auto2['mpg']
+model.fit(X,y)
+
+
+#a. For your model, what is the value of the intercept β0?
+print ("intercept : ",model.intercept_)
+
+#b. For your model, what is the value of the coefficient β1 of the attribute displacement?
+print ("coefficient : ",model.coef_)
+
+#c. What is the regression equation as per the model?
+print('equation : y='+str(model.coef_)+'x+'+str(model.intercept_))
+
+#d. For your model, does the predicted value for mpg increase or decrease as the displacement increases?
+#decrease
+
+#e. Given a car with a displacement value of 220, what would your model predict its mpg to be?
+print('prediction is:',model.predict([[220]]))
+
+#f. Display a scatterplot of the actual mpg vs displacement and superimpose the linear regression line.
+plt.figure(4)
+y_predicted=model.predict(X)
+plt.scatter(x,y)
+plt.plot(x,y_predicted)
+plt.show()
+
+#g. Plot the residuals.
+from sklearn.linear_model import Ridge
+from yellowbrick.regressor import ResidualsPlot
+plt.figure(5)
+ridge=Ridge()
+visualizer=ResidualsPlot(ridge)
+visualizer.fit(X,y)
+visualizer.show()
